@@ -9,38 +9,69 @@ def validate_regex(regex):
     try:
         re.compile(regex)
         print(f"This {regex} regular expression is VALID")
-        # return True
+        return re.compile(regex)
     except re.error:
         print("NOT VALID")
-        # return False
-
-
-def validate_string_against_regex(text, regex_pattern):
-    try:
-        pattern = re.compile(regex_pattern)
-        m = pattern.search(text)
-        if m:
-            print(f"Match found: {m.group()}")
-        else:
-            print("No match found.")
-    except re.error:
-        print("Regular expression is not valid")
-
-
-def validate_email(email):
-    valid_email = re.match(EMAIL_PATTERN, email)
-    if valid_email:
-        print(f"{email} is valid.")
-        return valid_email.group()
-    else:
-        print(f"{email} is NOT valid.")
         return None
 
 
-def validate_phone_number(num):
-    valid_num = re.match(PHONE_NUMBER_PATTERN, num)
+def validate_string_against_regex(text, args):
+    # Check for patterns
+    if args.email:
+        print("Check for valid email")
+        regex_pattern = EMAIL_PATTERN
+    elif args.phone:
+        print("Check for valid phone number")
+        regex_pattern = PHONE_NUMBER_PATTERN
+    else:
+        regex_pattern = args.regex
+
+    # Check for flags
+    flag = None
+    if args.ignorecase:
+        flag = re.IGNORECASE
+    elif args.multiline:
+        flag = re.MULTILINE
+    else:
+        if args.flag:
+            flag = args.flag
+
+    try:
+        if flag:
+            pattern = re.compile(regex_pattern, flag)
+        else:
+            pattern = re.compile(regex_pattern)
+
+        if pattern:
+            matches = list(pattern.finditer(text))
+            for match in matches:
+                start, end = match.span()
+                match_text = match.group()
+
+                if start == 0 and end == len(text):
+                    print("The entire text is fully matched.")
+                else:
+                    print("Only a part of the text is matched.")
+
+                print(f"Match found: {match_text} positions from {start} to {end}")
+    except re.error:
+        print("Invalid Regular Expression")
+
+
+def validate_email(text):
+    valid_email = re.search(EMAIL_PATTERN, text)
+    if valid_email:
+        print(f"{text} is valid.")
+        return valid_email.group()
+    else:
+        print(f"{text} is NOT valid.")
+        return None
+
+
+def validate_phone_number(text):
+    valid_num = re.search(PHONE_NUMBER_PATTERN, text)
     if valid_num:
-        print(f"{num} is a VALID phone number.")
+        print(f"{text} is a VALID phone number.")
         return valid_num.group()
     else:
-        print(f"{num} is NOT a valid phone number.")
+        print(f"{text} is NOT a valid phone number.")
